@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Happy Diwali</title>
+<meta name="description" content="Wishing you a bright, peaceful and joyful Diwali.">
+<meta name="theme-color" content="#0d0539">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<!-- Social card (LinkedIn / Facebook / X): replace YOUR-DOMAIN with your site's address, see README.txt -->
+<link rel="canonical" href="https://YOUR-DOMAIN/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Happy Diwali">
+<meta property="og:title" content="Happy Diwali">
+<meta property="og:description" content="Wishing you a bright, peaceful and joyful Diwali.">
+<meta property="og:url" content="https://YOUR-DOMAIN/">
+<meta property="og:image" content="https://YOUR-DOMAIN/og-card.png">
+<meta property="og:image:secure_url" content="https://YOUR-DOMAIN/og-card.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="627">
+<meta property="og:image:alt" content="Happy Diwali: a glowing diya on a purple lotus with gold ornaments and fireworks">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Happy Diwali">
+<meta name="twitter:description" content="Wishing you a bright, peaceful and joyful Diwali.">
+<meta name="twitter:image" content="https://YOUR-DOMAIN/og-card.png">
+<link rel="preload" as="image" href="bg.webp" fetchpriority="high">
+<style>
+:root{color-scheme:dark}
+html,body{margin:0;height:100%;overflow:hidden;background:#0d0539;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+*,*::before,*::after{cursor:pointer!important}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}#fx{pointer-events:none}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+#mute{position:fixed;left:calc(14px + env(safe-area-inset-left,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));width:44px;height:44px;border-radius:50%;border:1px solid rgba(224,176,96,.7);background:rgba(30,10,90,.75);color:#f0cf8f;padding:0;display:grid;place-items:center}
+#msg{position:fixed;left:50%;top:0;transform:translate(-50%,-50%);color:#f0cf8f;font:500 12px/1 system-ui,-apple-system,'Segoe UI',sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;text-shadow:0 0 10px rgba(255,190,100,.85);pointer-events:none;z-index:2;transition:opacity .9s;animation:msgp 2.4s ease-in-out infinite}
+#msg.gone{opacity:0!important;animation:none}
+@keyframes msgp{50%{opacity:.4}}
+#mute:focus-visible{outline:2px solid #f0cf8f;outline-offset:2px}#mute svg{width:22px;height:22px}#mute .off{display:none}#mute[aria-pressed=true] .on{display:none}#mute[aria-pressed=true] .off{display:block}
+</style>
+</head>
+<body>
+<div class="sr"><h1>Happy Diwali</h1><p>Wishing you a bright, peaceful and joyful Diwali.</p></div>
+<canvas id="bg" role="img" aria-label="Happy Diwali: a glowing diya on a purple lotus, framed in gold, with fireworks"></canvas><canvas id="fx"></canvas>
+<button id="mute" aria-label="Turn sound off" aria-pressed="false">
+<svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7M19 6a8.5 8.5 0 010 12"/></svg>
+<svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+</button>
+<div id="msg" role="status">Tap or click to celebrate Diwali</div>
+<script>
+(()=>{
+'use strict';
+const bgc=document.getElementById('bg'),fxc=document.getElementById('fx'),b=bgc.getContext('2d',{alpha:false}),f=fxc.getContext('2d'),mb=document.getElementById('mute'),msg=document.getElementById('msg');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stars=[];
+let W,H,SQ,OX,OY,mute=false,vOK=false,dirty=true,pReady=false,lit=0,litT=0,celebrated=false;
+
+/* ---------- Background: the design, painted on canvas (still first, video once it plays) ---------- */
+const poster=new Image();poster.decoding='async';poster.onload=()=>{pReady=true;dirty=true};poster.src='bg.webp';
+const vid=document.createElement('video');vid.muted=true;vid.loop=true;vid.playsInline=true;vid.setAttribute('playsinline','');vid.preload='auto';vid.style.cssText='position:fixed;width:2px;height:2px;opacity:0;pointer-events:none;left:0;top:0';
+function playVid(){if(reduce)return;const p=vid.play();if(p&&p.catch)p.catch(()=>{})}
+vid.addEventListener('playing',()=>{vOK=true});vid.addEventListener('error',()=>{vOK=false});
+document.body.appendChild(vid);vid.src='bg.mp4';playVid();
+function seedStars(){stars.length=0;let sd=7;const rnd=()=>(sd=sd*16807%2147483647)/2147483647,n=Math.round(Math.min(170,W*H/8000));
+ for(let i=0;i<n*8&&stars.length<n;i++){const x=rnd()*W,y=rnd()*H,u=(x-OX)/SQ,v=(y-OY)/SQ;
+  if(u>=0&&u<=1&&v>=0&&v<=1){if(!(((u>.15&&u<.23)||(u>.77&&u<.85))&&v>.1&&v<.9))continue}
+  stars.push({x,y,r:.4+rnd()*1.2,p:rnd()*6.283,sp:.6+rnd()*1.8,b:.45+rnd()*.55})}}
+function drawSky(t){
+ b.save();b.globalCompositeOperation='lighter';const k=.6+.4*lit;
+ for(const s of stars){const a=s.b*(.3+.7*(.5+.5*Math.sin(t*s.sp+s.p)))*k;b.fillStyle=`rgba(255,244,214,${a})`;b.beginPath();b.arc(s.x,s.y,s.r,0,6.283);b.fill();
+  if(s.r>1.2){b.strokeStyle=`rgba(255,240,200,${a*.55})`;b.lineWidth=.7;b.beginPath();b.moveTo(s.x-s.r*3.2,s.y);b.lineTo(s.x+s.r*3.2,s.y);b.moveTo(s.x,s.y-s.r*3.2);b.lineTo(s.x,s.y+s.r*3.2);b.stroke()}}
+ const mx=OX+SQ*.825,my=OY+SQ*.2,mr=Math.max(9,SQ*.032),mg=b.createRadialGradient(mx,my,mr*.5,mx,my,mr*3);
+ mg.addColorStop(0,`rgba(255,226,160,${.26+.14*lit})`);mg.addColorStop(1,'rgba(255,226,160,0)');b.fillStyle=mg;b.fillRect(mx-mr*3,my-mr*3,mr*6,mr*6);
+ b.restore();
+ b.save();b.beginPath();b.rect(0,0,W,H);b.arc(mx+mr*.5,my-mr*.22,mr*.86,0,6.283);b.clip('evenodd');b.fillStyle='#ffe9b8';b.beginPath();b.arc(mx,my,mr,0,6.283);b.fill();b.restore();
+ if(lit>.01){b.save();b.globalCompositeOperation='lighter';
+  const gx=OX+SQ*.5,gy=OY+SQ*.5,gr=SQ*.75,g=b.createRadialGradient(gx,gy,0,gx,gy,gr);
+  g.addColorStop(0,`rgba(255,196,110,${.32*lit})`);g.addColorStop(.45,`rgba(255,150,70,${.09*lit})`);g.addColorStop(1,'rgba(255,150,70,0)');b.fillStyle=g;b.fillRect(0,0,W,H);
+  for(let i=0;i<34;i++){const ph=(t*.1+i*.618)%1,x=OX+SQ*(.5+Math.sin(i*12.9898)*.3+Math.sin(t*.7+i)*.02),y=OY+SQ*(.78-ph*.6),a=Math.sin(ph*Math.PI)*lit*(.5+.5*Math.sin(t*3+i*2));
+   b.fillStyle=`rgba(255,214,140,${a})`;b.beginPath();b.arc(x,y,1+(i%3)*.6,0,6.283);b.fill()}
+  b.restore()}}
+function drawBG(t=0){b.fillStyle='#0d0539';b.fillRect(0,0,W,H);const s=vOK&&vid.readyState>=2?vid:(pReady?poster:null);if(s)b.drawImage(s,OX,OY,SQ,SQ);
+ if(lit<.999){b.fillStyle=`rgba(6,2,32,${.5*(1-lit)})`;b.fillRect(0,0,W,H)}
+ drawSky(t)}
+function celebrate(){if(celebrated)return;celebrated=true;litT=1;msg.classList.add('gone')}
+function resize(){W=innerWidth;H=innerHeight;const d=Math.min(devicePixelRatio||1,2);for(const c of[bgc,fxc]){c.width=W*d;c.height=H*d}b.setTransform(d,0,0,d,0,0);f.setTransform(d,0,0,d,0,0);b.imageSmoothingQuality='high';SQ=Math.min(W,H);OX=(W-SQ)/2;OY=(H-SQ)/2;seedStars();msg.style.top=(OY+SQ*.905)+'px';msg.style.fontSize=Math.max(9,Math.min(14,SQ*.0165))+'px';dirty=true}
+addEventListener('resize',resize);resize();
+
+/* ---------- Audio (synthesized; on by default) ---------- */
+let ac,master,mo,verb,nb,started=false,timer,nextT=0,step=0;
+function initAudio(){if(ac){if(ac.state==='suspended')ac.resume();return}
+ ac=new(window.AudioContext||window.webkitAudioContext)();const sr=ac.sampleRate,comp=ac.createDynamicsCompressor();master=ac.createGain();master.gain.value=mute?0:.9;master.connect(comp);comp.connect(ac.destination);
+ verb=ac.createConvolver();const L=sr*3,ib=ac.createBuffer(2,L,sr);for(let c=0;c<2;c++){const d=ib.getChannelData(c);for(let i=0;i<L;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/L,3)}verb.buffer=ib;const vg=ac.createGain();vg.gain.value=.5;verb.connect(vg).connect(master);
+ nb=ac.createBuffer(1,sr*2,sr);const nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+ const mus=ac.createGain();mus.gain.value=.65;mus.connect(master);ac.mus=mus;mo=ac.createGain();const dl=ac.createDelay(1),fb=ac.createGain();dl.delayTime.value=.59;fb.gain.value=.3;mo.connect(mus);mo.connect(dl);dl.connect(fb).connect(dl);dl.connect(mus);mo.connect(verb)}
+function nz(t,d,type,f0,f1,q,g,dest){const s=ac.createBufferSource();s.buffer=nb;s.loop=true;const fl=ac.createBiquadFilter();fl.type=type;fl.Q.value=q;fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+d);const gn=ac.createGain();gn.gain.setValueAtTime(.0001,t);gn.gain.exponentialRampToValueAtTime(g,t+Math.min(.03,d/3));gn.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(fl);fl.connect(gn);gn.connect(dest);s.start(t,Math.random());s.stop(t+d+.05)}
+function pan(x){const p=ac.createStereoPanner();p.pan.value=x/W*1.6-.8;p.connect(master);return p}
+const live=()=>ac&&ac.state==='running'&&!mute;
+function rocketSnd(d,x){if(!live())return;const t=ac.currentTime,p=pan(x);nz(t,d,'bandpass',700,3400,2.5,.2,p);nz(t,d,'lowpass',500,260,.8,.16,p);for(let i=0;i<d*28;i++)nz(t+Math.random()*d,.012,'highpass',3500+Math.random()*3000,6000,.6,.04+Math.random()*.06,p)}
+function burstSnd(x,size){if(!live())return;const t=ac.currentTime+.01,p=pan(x);p.connect(verb);
+ const o=ac.createOscillator(),g=ac.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(34,t+.7);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.85*size,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.8);o.connect(g).connect(p);o.start(t);o.stop(t+.85);
+ nz(t,1,'lowpass',2600,120,.7,.75*size,p);nz(t,.07,'highpass',1800,1800,.5,.55*size,p);nz(t+.28,1.4,'lowpass',500,90,.6,.25*size,p);
+ for(let i=0;i<30;i++)nz(t+.2+Math.random()*1.6,.02+Math.random()*.02,'highpass',3000+Math.random()*5000,3000+Math.random()*5000,.8,.05+Math.random()*.16,p)}
+const MEL=[16,,14,12,9,,7,9,12,,10,9,7,,4,,7,9,12,,14,,12,10,9,,7,4,0],DR=[196,261.63,261.63,130.81];
+function pluck(t,fr,g,dec,br){const gn=ac.createGain(),fl=ac.createBiquadFilter();fl.type='lowpass';fl.frequency.setValueAtTime(br,t);fl.frequency.exponentialRampToValueAtTime(fr*1.6,t+dec);gn.gain.setValueAtTime(.0001,t);gn.gain.linearRampToValueAtTime(g,t+.006);gn.gain.exponentialRampToValueAtTime(.0001,t+dec);
+ for(const dt of[0,9]){const o=ac.createOscillator();o.type='sawtooth';o.detune.value=dt;o.frequency.setValueAtTime(fr*1.03,t);o.frequency.exponentialRampToValueAtTime(fr,t+.05);o.connect(fl);o.start(t);o.stop(t+dec+.1)}fl.connect(gn);gn.connect(mo)}
+function tabla(t,f0,g){const o=ac.createOscillator(),gn=ac.createGain();o.frequency.setValueAtTime(f0*1.5,t);o.frequency.exponentialRampToValueAtTime(f0,t+.08);gn.gain.setValueAtTime(g,t);gn.gain.exponentialRampToValueAtTime(.0001,t+.3);o.connect(gn).connect(ac.mus);o.start(t);o.stop(t+.35)}
+function sched(n,t){const i=n%8;
+ if(i===0){tabla(t,95,.5);tabla(t,420,.1);pluck(t,65.41,.11,4,260)}if(i===3)tabla(t,110,.22);if(i===4)tabla(t,125,.32);
+ if(i===2||i===5||i===7){tabla(t,480+(i===5?60:0),.1);nz(t,.05,'bandpass',2800,2800,3,.06,ac.mus)}
+ if(i%2===0)pluck(t,DR[(n/2|0)%4],.1,3.2,900);const m=MEL[n%32];if(m!==undefined)pluck(t,261.63*2**(m/12),.15,1.2,5200);
+ if(n%32===0)for(const k of[1046,2093]){const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=k;g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+2.2);o.connect(g).connect(mo);o.start(t);o.stop(t+2.3)}}
+function startMusic(){if(started)return;try{initAudio()}catch(e){return}started=true;nextT=ac.currentTime+.1;timer=setInterval(()=>{if(ac.state!=='running')return;while(nextT<ac.currentTime+.4){sched(step++,nextT);nextT+=.3947}},120)}
+// Music starts the moment the browser allows it. Browsers only allow sound after a real gesture (click, tap-release, key press),
+// so the first one of those unlocks it instantly.
+const unlock=()=>{startMusic();if(ac&&ac.state!=='running')ac.resume()};
+const tryAuto=()=>{startMusic();if(ac&&ac.state!=='running')ac.resume().catch(()=>{})};
+tryAuto();addEventListener('load',tryAuto);addEventListener('pageshow',tryAuto);addEventListener('focus',tryAuto);
+['pointerup','pointerdown','mousedown','click','touchend','keydown','pointermove','wheel','touchstart'].forEach(ev=>addEventListener(ev,unlock,{passive:true,capture:true}));
+document.addEventListener('visibilitychange',()=>{if(ac)document.hidden?ac.suspend():ac.resume();document.hidden||reduce?vid.pause():playVid()});
+mb.addEventListener('click',()=>{mute=!mute;startMusic();if(ac){ac.resume();master.gain.setTargetAtTime(mute?0:.9,ac.currentTime,.25)}mb.setAttribute('aria-pressed',mute);mb.setAttribute('aria-label',mute?'Turn sound on':'Turn sound off')});
+
+/* ---------- Fireworks (purple), with occasional 2-3 cracker salvos ---------- */
+let P=[],R=[],last=0,auto=0,cnt=0;
+function launch(tx=W*(.1+Math.random()*.8),ty=H*(.1+Math.random()*.38),dur){const v=dur?(H-ty)/(dur*60):5.5+Math.random()*2,sx=tx+(Math.random()-.5)*W*.2;R.push({x:sx,y:H+10,tx,ty,v,vx:(tx-sx)/((H-ty)/v)});rocketSnd((H-ty)/(v*60),sx)}
+function salvo(){const k=2+(Math.random()<.6),dur=1.3+Math.random()*.4,ty0=H*(.14+Math.random()*.2),x0=W*(.15+Math.random()*.4);for(let i=0;i<k;i++)setTimeout(()=>launch(x0+i*W*(.17+Math.random()*.08),ty0+(Math.random()-.5)*H*.08,dur),i*50+Math.random()*60)}
+function burst(x,y){const size=.7+Math.random()*.5,hue=[262,272,282,252,292,268][Math.random()*6|0],n=80+Math.random()*50|0,ring=Math.random()<.35;burstSnd(x,size);
+ for(let i=0;i<n;i++){const a=Math.random()*6.283,s=ring?4.2:Math.random()*4.4+.6;P.push({x,y,px:x,py:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:60+Math.random()*40,m:100,z:1+Math.random()*1.6,h:hue+Math.random()*14,g:Math.random()<.25})}
+ for(let i=0;i<14;i++){const a=i/14*6.283;P.push({x,y,px:x,py:y,vx:Math.cos(a)*5.5,vy:Math.sin(a)*5.5,l:30,m:30,z:2.4,h:275,g:false})}}
+function fire(dt,t){f.globalCompositeOperation='destination-out';f.fillStyle='rgba(0,0,0,.22)';f.fillRect(0,0,W,H);f.globalCompositeOperation='lighter';
+ if(!vOK&&!reduce){const cx=W/2,cy=H/2-SQ*.02,r=SQ*.2,g=f.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,`rgba(255,205,120,${.1+.05*Math.sin(t*9)+.03*Math.sin(t*17)})`);g.addColorStop(1,'rgba(255,170,80,0)');f.fillStyle=g;f.fillRect(cx-r,cy-r,2*r,2*r)}
+ for(let i=R.length-1;i>=0;i--){const r=R[i];f.strokeStyle='rgba(215,190,255,.85)';f.lineWidth=2;f.beginPath();f.moveTo(r.x-r.vx*5,r.y+r.v*5);r.x+=r.vx*dt;r.y-=r.v*dt;f.lineTo(r.x,r.y);f.stroke();if(Math.random()<.5)P.push({x:r.x,y:r.y,px:r.x,py:r.y,vx:(Math.random()-.5)*.8,vy:Math.random()*.8,l:18,m:18,z:1,h:270,g:false});if(r.y<=r.ty){burst(r.x,r.y);R.splice(i,1)}}
+ for(let i=P.length-1;i>=0;i--){const p=P[i];p.px=p.x;p.py=p.y;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.985;p.vy=p.vy*.985+.04*dt;p.l-=dt;if(p.l<=0){P.splice(i,1);continue}
+  const a=p.l/p.m,tw=p.g&&Math.random()<.35?1:a;f.strokeStyle=`hsla(${p.h},100%,${62+a*26}%,${tw})`;f.lineWidth=p.z*(.5+a*.5);f.beginPath();f.moveTo(p.px,p.py);f.lineTo(p.x,p.y);f.stroke()}}
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(2.5,(now-last)/16.7||1);last=now;
+ if(!celebrated&&ac&&ac.state==='running')celebrate();
+ lit+=(litT-lit)*Math.min(1,.035*dt);if(Math.abs(litT-lit)<.002)lit=litT;
+ drawBG(reduce?0:now/1000);dirty=false;fire(dt,now/1000);
+ if(!reduce&&lit>.25&&now-auto>1700){(++cnt%4===0)?salvo():launch();auto=now}}
+requestAnimationFrame(frame);
+['pointerdown','click','touchend','keydown'].forEach(ev=>addEventListener(ev,celebrate,{passive:true,capture:true}));
+addEventListener('pointerdown',e=>{document.body.classList.add('grabbing');if(e.target.closest('button'))return;launch(e.clientX,Math.max(70,e.clientY))});
+addEventListener('pointerup',()=>document.body.classList.remove('grabbing'));addEventListener('pointercancel',()=>document.body.classList.remove('grabbing'));
+})();
+</script>
+</body></html>
